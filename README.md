@@ -1,0 +1,3 @@
+# django-amazonpay
+
+- Amazon Pay

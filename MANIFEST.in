@@ -1,0 +1,5 @@
+include *.md
+recursive-include * *.py
+recursive-include amzpay/templates *
+recursive-exclude * __pycache__
+recursive-exclude * *.py[co]

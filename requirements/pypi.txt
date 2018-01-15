@@ -1,5 +1,2 @@
 # Django
 django
-
-# SDK
-pay_with_amazon

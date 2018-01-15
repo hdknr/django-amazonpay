@@ -1,0 +1,1 @@
+-e git+https://github.com/amzn/amazon-pay-sdk-python.git#egg=amazon_pay

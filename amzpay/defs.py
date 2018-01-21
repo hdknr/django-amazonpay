@@ -1,5 +1,15 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.utils.functional import cached_property
+import json
+
+
+class Scope(models.Model):
+    name = models.CharField(max_length=50)
+    description = models.TextField(null=True, blank=True, default=None)
+
+    class Meta:
+        abstract = True
 
 
 class Merchant(models.Model):
@@ -34,3 +44,54 @@ class Conf(models.Model):
 
     class Meta:
         abstract = True
+
+
+BUTTON_TYPE_CHOICES = (
+    ('LwA', _('Login with Amazon')),
+    ('PwA', _('Pay with Amazon')),
+)
+
+BUTTON_COLOR_CHOICES = (
+    ('Gold', _('Gold')),
+    ('LightGray', _('Light Gray')),
+    ('DarkGray', _('Dark Gray')),
+)
+
+BUTTON_SIZE_CHOICES = (
+    ('small', _('Small Button Size')),
+    ('medium', _('Medium Button Size')),
+    ('large', _('Large Button Size')),
+    ('x-large', _('XLarge Button Size')),
+)
+
+
+class Button(models.Model):
+    '''
+    https://pay.amazon.com/jp/developer/documentation/lpwa/201953980
+    '''
+    button_type = models.CharField(
+        max_length=20,
+        choices=BUTTON_TYPE_CHOICES, default=BUTTON_TYPE_CHOICES[0][0])
+
+    button_color = models.CharField(
+        max_length=20,
+        choices=BUTTON_COLOR_CHOICES, default=BUTTON_COLOR_CHOICES[0][0])
+
+    button_size = models.CharField(
+        max_length=20,
+        choices=BUTTON_SIZE_CHOICES, default=BUTTON_SIZE_CHOICES[0][0])
+
+    class Meta:
+        abstract = True
+
+
+class Auth(models.Model):
+    auth_scope = models.TextField(null=True, default=None, blank=True)
+    auth_popup = models.BooleanField(default=True)
+
+    class Meta:
+        abstract = True
+
+    @cached_property
+    def auth_options(self):
+        return dict(scope=self.auth_scope, popup=self.auth_popup)

@@ -1,2 +1,9 @@
 # Django
 django
+
+# Social Login
+python-social-auth
+social-auth-app-django
+
+# Rest
+djangorestframework

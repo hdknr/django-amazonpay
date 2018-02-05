@@ -42,6 +42,11 @@ class Conf(models.Model):
     currency_code = models.CharField(max_length=50, default='JPY')
     sandbox = models.BooleanField(default=True)
 
+    # handle_throttle       # Bool
+    # api_version           # Char(Fixed)
+    # service_version       # Char('2013-01-01')
+    # mws_endpoint          #  'https://mws.amazonservices.com/OffAmazonPayments_Sandbox/{}'.format(self.service_version
+
     class Meta:
         abstract = True
 

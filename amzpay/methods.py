@@ -21,8 +21,3 @@ class Client(object):
             '/sandbox' if self.sandbox else '',
             '/lpa/js/Widgets.js',
         ])
-
-    @cached_property
-    def scopes(self):
-        return " ".join([s.name for s in self.scope_choices.all()])
-    

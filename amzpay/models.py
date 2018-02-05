@@ -24,8 +24,3 @@ class Client(defs.Merchant, defs.App, defs.Conf,
 
     def __str__(self):
         return "{} {}".format(self.merchant_title, self.app_title)
-
-    def save(self, *args, **kwargs):
-        self.auth_scope = " ".join(
-            [i.name for i in self.scope_choices.all()])
-        super(Client, self).save(*args, **kwargs)

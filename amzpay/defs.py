@@ -183,7 +183,7 @@ class PayCapture(models.Model):
         max_length=32, unique=True, null=True, default=None, blank=True)
     state = models.CharField(
         _('Amazon Pay Capture State'),
-        max_length=20, unique=True, null=True, default=None, blank=True)
+        max_length=20, null=True, default=None, blank=True)
     amount = models.DecimalField(
         _('Capture Amount'),
         max_digits=9, decimal_places=2, default=0, blank=True)
@@ -217,7 +217,7 @@ class PayRefund(models.Model):
         max_length=32, unique=True, null=True, default=None, blank=True)
     state = models.CharField(
         _('Amazon Pay Refund State'),
-        max_length=20,  null=True, default=None, blank=True)
+        max_length=20, null=True, default=None, blank=True)
 
     amount = models.DecimalField(
         _('Refund Amount'),

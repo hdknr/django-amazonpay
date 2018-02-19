@@ -17,11 +17,11 @@ def main(ctx):
     pass
 
 
-def find_auth(auth_id):
-    if auth_id.isdigit():
-        return models.PayAuth.objects.filter(id=auth_id).first()
+def find_auth(id):
+    if id.isdigit():
+        return models.PayAuth.objects.filter(id=id).first()
     else:
-        return models.PayAuth.objects.filter(authorization_id=auth_id).first()
+        return models.PayAuth.objects.filter(authorization_id=id).first()
 
 
 @main.command()
@@ -49,12 +49,12 @@ def close(ctx, auth_id, reason, client):
 
 
 @main.command()
-@click.argument('auth_id')
+@click.argument('id')
 @click.pass_context
-def capture(ctx, auth_id):
+def capture(ctx, id):
     ''' Capture Auth '''
 
-    auth = find_auth(auth_id)
+    auth = find_auth(id)
     capture = auth and auth.create_capture()
     if capture:
         click.echo("Capture {}".format(auth.authorization_id))

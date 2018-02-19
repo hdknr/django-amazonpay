@@ -46,10 +46,10 @@ def update_detail(ctx, id):
 @main.command()
 @click.argument('id')
 @click.pass_context
-def describe(ctx, auth_id):
+def describe(ctx, id):
     ''' Auth Detail'''
-    auth = find_auth(auth_id)
-    click.echo(auth.latest.response)
+    instance = models.PayCapture.objects.filter(id=id).first()
+    click.echo(instance.latest.response)
 
 
 @main.command()

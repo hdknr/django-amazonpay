@@ -6,6 +6,7 @@ from django.db.models import Q
 import djclick as click
 from datetime import timedelta
 from amzpay import models, encoders
+from . import amzpay_call
 from logging import getLogger
 log = getLogger()
 
@@ -50,3 +51,11 @@ def describe(ctx, id):
     ''' Refund Detail'''
     instance = models.PayRefund.objects.filter(id=id).first()
     click.echo(instance.latest.response)
+
+
+@main.command()
+@click.argument('id')
+@click.pass_context
+def calls(ctx, id):
+    ''' Refund Calls'''
+    amzpay_call.calls('refund', id)

@@ -3,11 +3,16 @@ from django.contrib.contenttypes.models import ContentType
 from social_django.models import UserSocialAuth
 from amazon_pay.client import AmazonPayClient
 from django.utils import timezone
-from . import defs, encoders, utils
+from . import defs, encoders
+from .utils import (
+    value_from_response as _VR,
+    value_from_dict as _VD,
+    datekey,
+)
 
 
 def new_number(prefix, salt=None, length=32):
-    key = utils.datekey(salt=salt)
+    key = datekey(salt=salt)
     number = "{}-{}".format(prefix, key)
     return number[:length]
 
@@ -90,12 +95,13 @@ class PayOrder(object):
 
         call = self.log_call('get_order_reference_details', request, response)
 
-        # Update State and Reason
-        state = utils.value_from_response(response, 'OrderReferenceStatus')
-        self.state = state.get('State', None)
-        self.reason = state.get('ReasonCode', None)
-        self.description = state.get('ReasonDescription', None)
-        self.save()
+        if response.success:
+            # Update State and Reason
+            state = _VR(response, 'OrderReferenceStatus')
+            self.state = state.get('State', None)
+            self.reason = state.get('ReasonCode', None)
+            self.description = state.get('ReasonDescription', None)
+            self.save()
 
         return call
 
@@ -116,9 +122,9 @@ class PayOrder(object):
 
         call = self.log_call('set_order_reference_details', request, response)
 
-        self.state = utils.value_from_response(
-            response, 'OrderReferenceStatus', 'State')
-        self.save()
+        if response.success:
+            self.state = _VR(response, 'OrderReferenceStatus', 'State')
+            self.save()
 
         return call
 
@@ -151,7 +157,7 @@ class PayOrder(object):
         https://pay.amazon.com/jp/developer/documentation/apireference/201752660
         https://pay.amazon.com/jp/developer/documentation/apireference/201752620
         '''
-        data = utils.value_from_dict(
+        data = _VD(
             self.latest.response_object,
             'GetOrderReferenceDetailsResponse',
             'GetOrderReferenceDetailsResult',
@@ -186,8 +192,7 @@ class PayAuth(object):
 
     @cached_property
     def latest(self):
-        return self.payauthcall_set.filter(
-            action='get_authorization_details').last()
+        return self.get_last_call('get_authorization_details')
 
     def authorize(self):
         '''API: Authorize '''
@@ -203,11 +208,10 @@ class PayAuth(object):
 
         call = self.log_call('authorize', request, response)
 
-        self.authorization_id = response.success and utils.value_from_response(
-            response, 'AmazonAuthorizationId')
-        self.state = utils.value_from_response(
-            response, 'AuthorizationStatus', 'State')
-        self.save()
+        if response.success:
+            self.authorization_id = _VR(response, 'AmazonAuthorizationId')
+            self.state = _VR(response, 'AuthorizationStatus', 'State')
+            self.save()
 
         return call
 
@@ -217,16 +221,12 @@ class PayAuth(object):
         response = self.client.api.get_authorization_details(**request)
         call = self.log_call('get_authorization_details', request, response)
 
-        # Status
-        self.state = utils.value_from_response(
-            response, 'AuthorizationStatus', 'State')
-        self.reason =  utils.value_from_response(
-            response, 'AuthorizationStatus', 'ReasonCode')
-        self.captured_amount = utils.value_from_response(
-            response, 'CapturedAmount', 'Amount')
-        self.fee = utils.value_from_response(
-            response, 'AuthorizationFee', 'Amount')
-        self.save()
+        if response.success:
+            self.state = _VR(response, 'AuthorizationStatus', 'State')
+            self.reason = _VR(response, 'AuthorizationStatus', 'ReasonCode')
+            self.captured_amount = _VR(response, 'CapturedAmount', 'Amount')
+            self.fee = _VR(response, 'AuthorizationFee', 'Amount')
+            self.save()
 
         return call
 
@@ -267,7 +267,7 @@ class PayCapture(object):
 
     @cached_property
     def latest(self):
-        return self.payauthcall_set.filter(action='get_capture_details').last()
+        return self.get_last_call('get_capture_details')
 
     def capture(self):
         '''API
@@ -282,14 +282,12 @@ class PayCapture(object):
         call = self.log_call('capture', request, response)
 
         # Update
-        self.capture_id = utils.value_from_response(response, 'AmazonCaptureId')
-        self.state = utils.value_from_response(
-            response, 'CaptureStatus', 'State')
-        self.amount = utils.value_from_response(
-            response, 'CaptureAmount', 'Amount')
-        self.fee = utils.value_from_response(
-            response, 'CaptureFee', 'Amount')
-        self.save()
+        if response.success:
+            self.capture_id = _VR(response, 'AmazonCaptureId')
+            self.state = _VR(response, 'CaptureStatus', 'State')
+            self.amount = _VR(response, 'CaptureAmount', 'Amount')
+            self.fee = _VR(response, 'CaptureFee', 'Amount')
+            self.save()
 
         return call
 
@@ -302,15 +300,12 @@ class PayCapture(object):
         response = self.client.api.get_capture_details(**request)
         call = self.log_call('get_capture_details', request, response)
 
-        self.amount = utils.value_from_response(
-            response, 'CaptureAmount', 'Amount')
-        self.fee = utils.value_from_response(
-            response, 'CaptureFee', 'Amount')
-        self.state = utils.value_from_response(
-            response, 'CaptureStatus', 'State')
-        self.refund_amount = utils.value_from_response(
-            response, 'RefundedAmount', 'Amount')
-        self.save()
+        if response.success:
+            self.amount = _VR(response, 'CaptureAmount', 'Amount')
+            self.fee = _VR(response, 'CaptureFee', 'Amount')
+            self.state = _VR(response, 'CaptureStatus', 'State')
+            self.refund_amount = _VR(response, 'RefundedAmount', 'Amount')
+            self.save()
 
         return call
 
@@ -341,7 +336,7 @@ class PayRefund(object):
 
     @cached_property
     def latest(self):
-        return self.payauthcall_set.filter(action='get_refund_details').last()
+        return self.get_last_call('get_refund_details')
 
     def refund(self):
         '''API : Refund
@@ -360,14 +355,12 @@ class PayRefund(object):
         call = self.log_call('refund', request, response)
 
         # Update
-        self.refund_id = utils.value_from_response(response, 'AmazonRefundId')
-        self.amount =utils.value_from_response(
-            response, 'RefundAmount', 'Amount')
-        self.fee =utils.value_from_response(
-            response, 'FeeRefunded', 'Amount')
-        self.state =utils.value_from_response(
-            response, 'RefundStatus', 'State')
-        self.save()
+        if response.success:
+            self.refund_id = _VR(response, 'AmazonRefundId')
+            self.amount = _VR(response, 'RefundAmount', 'Amount')
+            self.fee = _VR(response, 'FeeRefunded', 'Amount')
+            self.state = _VR(response, 'RefundStatus', 'State')
+            self.save()
 
         return call
 
@@ -379,13 +372,11 @@ class PayRefund(object):
         response = self.client.api.get_refund_details(**request)
         call = self.log_call('get_refund_details', request, response)
 
-        self.amount =utils.value_from_response(
-            response, 'RefundAmount', 'Amount')
-        self.fee =utils.value_from_response(
-            response, 'FeeRefunded', 'Amount')
-        self.state =utils.value_from_response(
-            response, 'RefundStatus', 'State')
-        self.save()
+        if response.success:
+            self.amount = _VR(response, 'RefundAmount', 'Amount')
+            self.fee = _VR(response, 'FeeRefunded', 'Amount')
+            self.state = _VR(response, 'RefundStatus', 'State')
+            self.save()
 
         return call
 

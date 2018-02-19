@@ -1,0 +1,34 @@
+{% load staticfiles %}
+<script type='text/javascript'>
+window.onAmazonLoginReady = function() {
+  amazon.Login.setClientId('{{ amzpay.client_id}}');
+};
+window.onAmazonPaymentsReady = function() {
+  showButton();     
+};
+</script>
+<script async="async" src='{{ amzpay.widget }}'> </script>
+<script type="text/javascript">
+
+function onAuthorized(response){
+  axios.defaults.xsrfCookieName = 'csrftoken';
+  axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+  axios.post("{% url 'token-list' %}", response).then((res)=>{
+      window.location.href = "{{ address_url }}";
+  });
+}
+function showButton() {
+    var authRequest;
+    OffAmazonPayments.Button(
+        "AmazonPayButton",
+        "{{ amzpay.merchant_id }}",
+        {type: "{{ amzpay.button_type }}",
+         color: "{{ amzpay.button_color }}",
+         color: "{{ amzpay.button_size }}",
+          authorization: function() {
+            loginOptions = {scope: "{{ amzpay.auth_scope}}", popup: "{{ amzpay.auth_scope}}"};
+            authRequest = amazon.Login.authorize (loginOptions, onAuthorized);
+          }}
+    );
+}
+</script>

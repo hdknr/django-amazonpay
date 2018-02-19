@@ -1,0 +1,45 @@
+/* Please include the min-width, max-width, min-height
+/* and max-height if you plan to use a relative CSS unit
+/* measurement to make sure the widget renders in the
+/* optimal size allowed.
+*/
+
+.amzpayAddressBook {
+  min-width: 300px;
+  max-width: 600px;
+  min-height: 228px;
+  max-height: 400px;
+}
+
+.amzpayWallet {
+  min-width: 300px;
+  max-width:600px;
+  min-height: 228px;
+  max-height: 400px;
+}
+/* Mobile optimized and small window */
+
+.amzpayAddressBook {
+  width: 100%;
+  height: 228px;
+}
+
+.amzpayWallet {
+  width: 100%;
+  height: 228px;
+}
+
+/* Desktop and tablet */
+
+@media only screen and (min-width: 768px) {
+
+  .amzpayAddressBook {
+    width: 400px;
+    height: 228px;
+  }
+
+  .amzpayWallet {
+    width: 400px;
+    height: 228px;
+  }
+}

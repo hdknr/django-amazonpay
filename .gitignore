@@ -16,7 +16,6 @@ build
 dist
 
 # django projects
-static
 media
 components
 docs/build

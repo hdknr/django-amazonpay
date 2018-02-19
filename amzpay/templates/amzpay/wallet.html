@@ -1,0 +1,23 @@
+{% load staticfiles %}
+<script type='text/javascript'>
+window.onAmazonLoginReady = function() {
+  amazon.Login.setClientId('{{ amzpay.client_id}}');
+};
+window.onAmazonPaymentsReady = function() {
+  showWallet();   
+};
+</script>
+<script async="async" src='{{ amzpay.widget }}'> </script>
+<script type="text/javascript">
+function showWallet(){
+  new OffAmazonPayments.Widgets.Wallet({
+      sellerId: "{{ amzpay.merchant_id }}",
+      onPaymentSelect: function(oRef) {
+        // ready for execute
+      },
+      design: { designMode: 'responsive' },
+      onError: function(error) {
+      }
+  }).bind("walletWidgetDiv");
+}
+</script>

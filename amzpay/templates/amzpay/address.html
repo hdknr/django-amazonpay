@@ -1,0 +1,45 @@
+{% load staticfiles %} {# amzpay Client , order: PayOrder parameter #}
+<link rel="stylesheet" href="{% static 'amzpay/style/widget.css' %}"> {# Amazon Pay Widget #}
+
+<script type='text/javascript'>
+window.onAmazonLoginReady = function() {
+  amazon.Login.setClientId('{{ amzpay.client_id}}');
+};
+window.onAmazonPaymentsReady = function() {
+    showAddress();
+};
+</script>
+<script async="async" src='{{ amzpay.widget }}'> </script>
+<script type="text/javascript">
+function showAddress(){
+  new OffAmazonPayments.Widgets.AddressBook({
+      sellerId: "{{ amzpay.merchant_id }}",
+      onReady: function(oRef) {
+          // widget is ready
+          var or_id = oRef.getAmazonOrderReferenceId();
+          var ba_id = oRef.getAmazonBillingAgreementId();
+      },
+      onOrderReferenceCreate: function(oRef) {
+          // Order Referece is ready
+          var obj ={
+            client: {{ amzpay.id }},
+            order_content_type: {{ order.order_content_type}},
+            order_object_id: {{ order.order_object_id}},
+            reference_id: oRef.getAmazonOrderReferenceId()};
+
+          axios.defaults.xsrfCookieName = 'csrftoken';
+          axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+          axios.post("{% url 'payorder-list' %}", obj ).then((res)=>{
+          });
+      },
+      onAddressSelect: function(oRef) {
+          // Address is ready for the current Order Reference
+          // Ready to Proceed Walle Page
+          console.log(oRef);
+      },
+      design: { designMode: 'responsive' },
+      onError: function(error) {
+      }
+      }).bind("addressBookWidgetDiv");
+}
+</script>

@@ -165,7 +165,7 @@ class PayOrder(object):
         auth_number = auth_number or new_number('A')
         return self.payauth_set.create(
             amount=self.amount,
-            note=node,
+            note=note,
             auth_number=auth_number)
 
 

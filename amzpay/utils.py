@@ -1,5 +1,5 @@
 from django.core.urlresolvers import reverse
-from django.template import Template, Context
+from django.template import Template, Context, loader
 from django.template.loader import get_template
 from django.utils import timezone
 from functools import reduce
@@ -21,6 +21,10 @@ def find_template(dirname, basename):
 
 def render(src, request=None, **kwargs):
     return Template(src).render(Context(kwargs))
+
+
+def render_by(name, request=None, **kwargs):
+    return loader.get_template(name).render(context=kwargs)
 
 
 def value_from_dict(data, *keys):

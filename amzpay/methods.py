@@ -79,7 +79,16 @@ class PayOrder(object):
 
     @cached_property
     def latest(self):
-        return self.get_last_call('get_order_reference_details')
+        return self.get_last_call(
+            'get_order_reference_details', 'set_order_reference_details')
+
+    def update_status(self, response):
+        # Update State and Reason
+        state = _VR(response, 'OrderReferenceStatus')
+        self.state = state.get('State', None)
+        self.reason = state.get('ReasonCode', None)
+        self.description = state.get('ReasonDescription', None)
+        self.save()
 
     def get_detail(self):
         '''API: GetOrderReferenceDetails
@@ -97,11 +106,7 @@ class PayOrder(object):
 
         if response.success:
             # Update State and Reason
-            state = _VR(response, 'OrderReferenceStatus')
-            self.state = state.get('State', None)
-            self.reason = state.get('ReasonCode', None)
-            self.description = state.get('ReasonDescription', None)
-            self.save()
+            self.update_status(response)
 
         return call
 
@@ -123,8 +128,8 @@ class PayOrder(object):
         call = self.log_call('set_order_reference_details', request, response)
 
         if response.success:
-            self.state = _VR(response, 'OrderReferenceStatus', 'State')
-            self.save()
+            # Update State and Reason
+            self.update_status(response)
 
         return call
 
@@ -192,7 +197,15 @@ class PayAuth(object):
 
     @cached_property
     def latest(self):
-        return self.get_last_call('get_authorization_details')
+        return self.get_last_call('authorize', 'get_authorization_details')
+
+    def update_status(self, response):
+        self.authorization_id = _VR(response, 'AmazonAuthorizationId')
+        self.state = _VR(response, 'AuthorizationStatus', 'State')
+        self.reason = _VR(response, 'AuthorizationStatus', 'ReasonCode')
+        self.captured_amount = _VR(response, 'CapturedAmount', 'Amount')
+        self.fee = _VR(response, 'AuthorizationFee', 'Amount')
+        self.save()
 
     def authorize(self):
         '''API: Authorize '''
@@ -209,9 +222,7 @@ class PayAuth(object):
         call = self.log_call('authorize', request, response)
 
         if response.success:
-            self.authorization_id = _VR(response, 'AmazonAuthorizationId')
-            self.state = _VR(response, 'AuthorizationStatus', 'State')
-            self.save()
+            self.update_status(response)
 
         return call
 
@@ -222,11 +233,7 @@ class PayAuth(object):
         call = self.log_call('get_authorization_details', request, response)
 
         if response.success:
-            self.state = _VR(response, 'AuthorizationStatus', 'State')
-            self.reason = _VR(response, 'AuthorizationStatus', 'ReasonCode')
-            self.captured_amount = _VR(response, 'CapturedAmount', 'Amount')
-            self.fee = _VR(response, 'AuthorizationFee', 'Amount')
-            self.save()
+            self.update_status(response)
 
         return call
 
@@ -267,7 +274,15 @@ class PayCapture(object):
 
     @cached_property
     def latest(self):
-        return self.get_last_call('get_capture_details')
+        return self.get_last_call('get_capture_details', 'capture')
+
+    def update_status(self, response):
+        self.capture_id = _VR(response, 'AmazonCaptureId')
+        self.state = _VR(response, 'CaptureStatus', 'State')
+        self.amount = _VR(response, 'CaptureAmount', 'Amount')
+        self.fee = _VR(response, 'CaptureFee', 'Amount')
+        self.refund_amount = _VR(response, 'RefundedAmount', 'Amount')
+        self.save()
 
     def capture(self):
         '''API
@@ -283,11 +298,7 @@ class PayCapture(object):
 
         # Update
         if response.success:
-            self.capture_id = _VR(response, 'AmazonCaptureId')
-            self.state = _VR(response, 'CaptureStatus', 'State')
-            self.amount = _VR(response, 'CaptureAmount', 'Amount')
-            self.fee = _VR(response, 'CaptureFee', 'Amount')
-            self.save()
+            self.update_status(response)
 
         return call
 
@@ -301,11 +312,7 @@ class PayCapture(object):
         call = self.log_call('get_capture_details', request, response)
 
         if response.success:
-            self.amount = _VR(response, 'CaptureAmount', 'Amount')
-            self.fee = _VR(response, 'CaptureFee', 'Amount')
-            self.state = _VR(response, 'CaptureStatus', 'State')
-            self.refund_amount = _VR(response, 'RefundedAmount', 'Amount')
-            self.save()
+            self.update_status(response)
 
         return call
 
@@ -394,25 +401,15 @@ class OrderObjectMixin(object):
         from .models import PayOrder
         return PayOrder.objects.find_for(self)
 
-    def on_address(self, update=True):
-        update and self.payorder.get_detail()
-        # calculate other fee based on destination address
+    def amzpay_request(self, **kwargs):
+        return self.payorder.set_detail()
 
-    def on_wallet(self, update=True):
-        self.payorder.set_detail()
-        update and self.payorder.get_detail()
-
-    def on_confirm(self, update=True):
+    def amzpay_confirm(self, **kwargs):
         self.payorder.confirm()
-        update and self.payorder.get_detail()
+        return self.payorder.get_detail()
 
-    def on_autorize(self):
-        auth = self.payorder.create_auth()
-        res = auth.authorize()
-        if res.success:
-            auth.get_detail()
-            return True
-        return False
+    def amzpay_autorize(self):
+        return self.payorder.create_auth().authorize()
 
 
 class PayCall(object):
@@ -424,3 +421,15 @@ class PayCall(object):
     @cached_property
     def response_object(self):
         return encoders.from_json(self.response)
+
+    @cached_property
+    def request_yaml(self):
+        return encoders.to_yaml(
+            self.request_object,
+            allow_unicode=True, default_flow_style=False)
+
+    @cached_property
+    def response_yaml(self):
+        return encoders.to_yaml(
+            self.response_object,
+            allow_unicode=True, default_flow_style=False)

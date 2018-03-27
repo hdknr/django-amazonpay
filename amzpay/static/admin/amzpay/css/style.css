@@ -1,0 +1,10 @@
+.amzpay-container{
+    display: flex;
+    width: 100%;
+}
+.amzpay-fixed{
+    width: 50%;
+}
+.amzpay-flex-item{
+    flex-grow: 1;
+}

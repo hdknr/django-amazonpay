@@ -1,0 +1,35 @@
+{% extends "admin/app_index.html" %}
+{% load i18n %}
+
+{% block sidebar %}
+<div id="content-related">
+  <div>
+    <h2>Amazon Pay Configuration</h2>
+    <ul>
+        <li><a href="{% url 'admin:amzpay_client_changelist' %}">Clients</a></li>
+        <li><a href="{% url 'admin:amzpay_scope_changelist' %}">Scopes</a></li>
+    </ul>
+  </div>
+
+  <div>
+    <h2>Amazon Pay Transaction</h2>
+    <ul>
+        <li><a href="{% url 'admin:amzpay_payorder_changelist' %}">Orders</a></li>
+        <li><a href="{% url 'admin:amzpay_payauth_changelist' %}">Auths</a></li>
+        <li><a href="{% url 'admin:amzpay_paycapture_changelist' %}">Captures</a></li>
+        <li><a href="{% url 'admin:amzpay_payrefund_changelist' %}">Refunds</a></li>
+    </ul>
+  </div>
+
+  <div>
+    <h2>Amazon Pay Log</h2>
+    <ul>
+        <li><a href="{% url 'admin:amzpay_paycall_changelist' %}">Calls</a></li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block content %} {{ block.super }}
+{% endblock %}

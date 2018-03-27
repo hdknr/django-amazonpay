@@ -52,10 +52,10 @@ class PayMixin(object):
     def log_call(self, action, request, response):
         return PayCall.objects.create_for(self, action, request, response)
 
-    def get_last_call(self, action):
+    def get_last_call(self, *action):
         return PayCall.objects.filter(
             content_type__model=self._meta.model_name,
-            object_id=self.id, action=action).last()
+            object_id=self.id, action__in=action).last()
 
 
 class PayOrder(defs.PayOrder, methods.PayOrder, PayMixin):

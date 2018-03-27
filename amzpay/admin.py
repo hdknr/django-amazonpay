@@ -47,25 +47,40 @@ class CallMixin(Mixin):
         'admin_url', 'action', 'success',
         'request_json', 'response_json', 'created_at']
 
-    def request_json(self, obj):
-        o = encoders.to_yaml(
+    def _req(self, obj):
+        return encoders.to_yaml(
             obj.request_object,
             allow_unicode=True, default_flow_style=False)
-        return utils.render('''<pre>{{ o|safe }}</pre>''', o=o)
 
-    def response_json(self, obj):
-        o = encoders.to_yaml(
+    def _res(self, obj):
+        return encoders.to_yaml(
             obj.response_object,
             allow_unicode=True, default_flow_style=False)
-        return utils.render('''<pre>{{ o|safe }}</pre>''', o=o)
+
+    def request_json(self, obj):
+        return utils.render('''<pre>{{ o|safe }}</pre>''', o=self._req(obj))
+
+    def response_json(self, obj):
+        return utils.render('''<pre>{{ o|safe }}</pre>''', o=self._res(obj))
+
+    def headers(self, obj):
+        return utils.render_by(
+            'admin/amzpay/paycall/headers.html',
+            obj=obj, url=utils.admin_change_url(obj))
+
+    def messages(self, obj):
+        req, res = self._req(obj), self._res(obj)
+        return utils.render_by(
+            'admin/amzpay/paycall/messages.html', res=res, req=req)
 
 
 class PayCallInline(GenericStackedInline, CallMixin):
     model = models.PayCall
     extra = 0
-    exclude = CallMixin.exclude
-    readonly_fields = [
-        'admin_url', 'success', 'action', 'request_json', 'response_json']
+    exclude = CallMixin.exclude + ['success', 'action', 'created_at']
+    ordering = ['-created_at']
+    readonly_fields = ['headers', 'messages']
+
 
 class PayCaptureInline(admin.StackedInline, Mixin):
     model = models.PayCapture
@@ -90,12 +105,13 @@ class PayAuthAdmin(admin.ModelAdmin):
 
 class PayAuthInline(admin.StackedInline, Mixin):
     model = models.PayAuth
+    ordering = ['-created_at']
     extra = 0
     exclude = ['']
     readonly_fields = [
         'admin_url',
         'auth_number', 'authorization_id', 'state', 'reason', 'amount', 'fee',
-        'captured_amount', 'note']
+        'captured_amount', 'note', 'created_at']
 
 
 @admin.register(models.PayOrder)

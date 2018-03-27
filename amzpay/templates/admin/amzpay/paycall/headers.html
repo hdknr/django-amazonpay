@@ -1,0 +1,9 @@
+{% load amzpay_tags %}
+<h4>
+    <a href="{{ admin_url }}">
+      CALL={{ obj.id }}:
+      {{ obj.success|boolean_icon }}
+      {{ obj.action }}
+      ({{ obj.created_at }})
+    </a>
+</h4>

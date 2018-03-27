@@ -1,5 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe as _S
+from django.contrib.admin.templatetags.admin_list import _boolean_icon
 from amzpay import utils, serializers
 import json
 
@@ -40,3 +41,8 @@ def amzpay_wallet_script(amzpay, dirname='amzpay', basename="wallet.html"):
 def to_amzpay_json(client):
     data = serializers.ClientSerializer(client).data
     return _S(json.dumps(data))
+
+
+@register.filter
+def boolean_icon(value):
+    return _S(_boolean_icon(value))

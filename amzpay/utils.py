@@ -1,4 +1,8 @@
-from django.core.urlresolvers import reverse
+try:
+    from django.core.urlresolvers import reverse
+except:
+    from django.urls import reverse
+
 from django.template import Template, Context, loader
 from django.template.loader import get_template
 from django.utils import timezone

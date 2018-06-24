@@ -21,6 +21,8 @@ class Client(defs.Merchant, defs.App, defs.Conf,
 
     scope_choices = models.ManyToManyField(Scope)
 
+    is_default = models.BooleanField(_('Default Client'), default=False)
+
     class Meta:
         verbose_name = ('Amazon Pay Client')
         verbose_name_plural = ('Amazon Pay Clients')

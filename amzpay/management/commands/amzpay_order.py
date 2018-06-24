@@ -34,10 +34,19 @@ def authorize(ctx, id):
 @main.command()
 @click.argument('id')
 @click.pass_context
-def update_detail(ctx, id):
-    ''' Order Detail'''
+def get_detail(ctx, id):
+    ''' Get Order Detail'''
     order = models.PayOrder.objects.filter(id=id).first()
     click.echo(order.get_detail().response)
+
+
+@main.command()
+@click.argument('id')
+@click.pass_context
+def set_detail(ctx, id):
+    ''' Set Order Detail'''
+    order = models.PayOrder.objects.filter(id=id).first()
+    click.echo(order.set_detail().response)
 
 
 @main.command()
@@ -50,6 +59,16 @@ def close(ctx, id, reason):
     if order:
         click.echo("Closing {}".format(order.order_reference_id))
         click.echo(order.close(reason=reason).response)
+
+
+@main.command()
+@click.argument('id')
+@click.pass_context
+def confirm(ctx, id):
+    ''' Confirm Order'''
+    # https://pay.amazon.com/jp/developer/documentation/apireference/201751980
+    order = models.PayOrder.objects.filter(id=id).first()
+    order and order.confirm()
 
 
 @main.command()

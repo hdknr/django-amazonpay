@@ -123,6 +123,7 @@ class PayOrderAdmin(admin.ModelAdmin):
     raw_id_fields = ['social', ]
     readonly_fields =[
         'order_object_admin_url', 'latest_detail', 'created_at', 'updated_at']
+    search_fields = ['order_reference_id']
 
     def order_object_admin_url(self, obj):
         return utils.render('''<a href="{{u}}">{{i}}</a>''',

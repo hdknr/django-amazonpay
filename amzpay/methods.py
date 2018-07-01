@@ -115,6 +115,9 @@ class PayOrder(object):
         - https://pay.amazon.com/jp/developer/documentation/apireference/201751960
         - https://github.com/amzn/amazon-pay-sdk-python/blob/master/amazon_pay/client.py#L570
         '''
+        if self.state != 'Draft':
+            return None
+
         request = dict(
             amazon_order_reference_id=self.order_reference_id,
             order_total=self.amount,                # OrderReferenceAttributes

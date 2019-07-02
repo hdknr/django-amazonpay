@@ -1,0 +1,42 @@
+[
+  {
+    "model": "amzpay.scope",
+    "pk": 1,
+    "fields": {
+      "name": "profile",
+      "description": "ログイン後に全てのユーザー情報（ユーザー名、メールアドレス、ユーザーID）へのアクセスを与えます。"
+    }
+  },
+  {
+    "model": "amzpay.scope",
+    "pk": 2,
+    "fields": {
+      "name": "profile:user_id",
+      "description": "ログイン後にユーザー情報からユーザーIDだけへのアクセスを与えます。"
+    }
+  },
+  {
+    "model": "amzpay.scope",
+    "pk": 3,
+    "fields": {
+      "name": "postal_code",
+      "description": "ユーザーの既定の住所から郵便番号を与えます。\r\n\r\npostal_codeスコープへアクセスした場合で、profileやprofile:user_idスコープと単独、または、組み合わせでアクセス要求時は、ユーザーは個人情報を共有するために同意しなければなりません。"
+    }
+  },
+  {
+    "model": "amzpay.scope",
+    "pk": 4,
+    "fields": {
+      "name": "payments:widget",
+      "description": "ページ上でAmazon Payウィジェット（アドレス帳とお支払い方法ウィジェット）を表示するために要求します。パラメータ無しで利用した場合は、ConfirmBillingAgreement呼び出し後に完全な配送先住所にアクセスすることを許可されます。"
+    }
+  },
+  {
+    "model": "amzpay.scope",
+    "pk": 5,
+    "fields": {
+      "name": "payments:shipping_address",
+      "description": "アドレス帳ウィジェットで選択された住所をすぐにGetBillingAgreementDetailsのAPI呼び出し経由で完全な配送先住所にアクセスすることを与えます。\r\n\r\n必須のスコープパラメータ \r\n\r\npayments:widget \r\n\r\nAccessToken を \r\n\r\nGetOrderReferenceDetails呼び出すの中でセットします。"
+    }
+  }
+]

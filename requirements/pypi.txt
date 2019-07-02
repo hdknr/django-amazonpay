@@ -6,4 +6,14 @@ python-social-auth
 social-auth-app-django
 
 # Rest
+requests
 djangorestframework
+# djangorestframework-filters
+-e git+https://github.com/philipn/django-rest-framework-filters.git#egg=djangorestframework-filters
+django-cors-headers
+
+# Database
+mysqlclient
+
+# Data
+PyYAML

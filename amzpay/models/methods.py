@@ -3,7 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from social_django.models import UserSocialAuth
 from amazon_pay.client import AmazonPayClient
 from django.utils import timezone
-from . import defs, encoders, utils
+from amzpay import encoders, utils
+from . import defs
 
 
 def new_number(prefix, salt=None, length=32):

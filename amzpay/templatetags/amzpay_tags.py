@@ -1,6 +1,6 @@
 from django import template
 from django.utils.safestring import mark_safe as _S
-from amzpay import utils, serializers
+from amzpay import utils, api
 import json
 
 register = template.Library()
@@ -38,5 +38,5 @@ def amzpay_wallet_script(amzpay, dirname='amzpay', basename="wallet.html"):
 
 @register.filter
 def to_amzpay_json(client):
-    data = serializers.ClientSerializer(client).data
+    data = api.serializers.ClientSerializer(client).data
     return _S(json.dumps(data))

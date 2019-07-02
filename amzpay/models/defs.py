@@ -6,6 +6,11 @@ import json
 
 
 class Scope(models.Model):
+    '''
+    ENTER_SCOPES:
+
+        - https://developer.amazon.com/ja/docs/amazon-pay-automatic/add-button-widget.html#enter_scopes
+    '''
     name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True, default=None)
 
@@ -74,7 +79,7 @@ BUTTON_SIZE_CHOICES = (
 
 class Button(models.Model):
     '''
-    https://pay.amazon.com/jp/developer/documentation/lpwa/201953980
+    https://developer.amazon.com/ja/docs/amazon-pay-onetime/add-a-button.html
     '''
     button_type = models.CharField(
         max_length=20,

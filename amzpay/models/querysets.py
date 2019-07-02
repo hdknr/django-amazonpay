@@ -1,8 +1,7 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from social_django.models import UserSocialAuth
-
-from . import encoders
+from amzpay import encoders
 
 
 class PayOrderQuerySet(models.QuerySet):

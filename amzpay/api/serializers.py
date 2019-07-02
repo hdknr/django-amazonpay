@@ -4,7 +4,7 @@ from rest_framework import serializers, fields
 from social_django.models import UserSocialAuth
 from functools import reduce
 import operator
-from . import models
+from .. import models
 
 
 class ClientSerializer(serializers.ModelSerializer):

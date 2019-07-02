@@ -2,7 +2,8 @@ from rest_framework import (viewsets, response, permissions, pagination)
 from social_django.utils import load_strategy, load_backend
 from social_django.views import _do_login
 from collections import OrderedDict
-from . import models, serializers, filters
+from .. import models
+from . import serializers, filters
 
 
 class Pagination(pagination.PageNumberPagination):

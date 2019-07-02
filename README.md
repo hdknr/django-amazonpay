@@ -1,4 +1,4 @@
-# django-amazonpay
+# django-amazonpay (prototype)
 
 - Amazon Pay
 
